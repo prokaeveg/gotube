@@ -1,0 +1,5 @@
+root = "."
+
+[build]
+cmd = "go build -buildvcs=false -o gotube"
+bin = "./gotube"
