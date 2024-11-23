@@ -1,15 +1,16 @@
 package db
 
 import (
-	"database/sql"
+	"context"
 	"fmt"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"net/http"
 )
 
-func ShowTables(db *sql.DB, w http.ResponseWriter) {
-	rows, err := db.Query("SHOW TABLES")
+func ShowTables(db *pgxpool.Pool, w http.ResponseWriter) {
+	rows, err := db.Query(context.Background(), "SELECT tablename FROM pg_catalog.pg_tables")
 	if err != nil {
-		http.Error(w, "Failed to execute query", http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		//@todo logging
 		return
 	}
@@ -28,6 +29,7 @@ func ShowTables(db *sql.DB, w http.ResponseWriter) {
 
 	if len(tables) == 0 {
 		w.Write([]byte("No tables found"))
+		return
 	}
 
 	w.Write([]byte(fmt.Sprintf("Tables: %v", tables)))
