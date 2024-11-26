@@ -6,6 +6,7 @@ import (
 	"gotube/migrations"
 	"gotube/server"
 	"log"
+	"os"
 )
 
 func main() {
@@ -18,7 +19,12 @@ func main() {
 	pool := db.InitializeDb()
 	srv := server.CreateServer(pool)
 	srv.MountHandlers()
-	migrations.RunMigrations(srv.DB)
+
+	if os.Getenv("APP_ENV") == "local" || os.Getenv("APP_ENV") == "test" {
+		srv.MountTestHandlers()
+	}
+
+	migrations.RunMigrations(srv.DBRepo.DB)
 
 	srv.Start()
 }
