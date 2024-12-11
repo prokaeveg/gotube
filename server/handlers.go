@@ -5,7 +5,6 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"gotube/admin"
 	"gotube/auth"
-	"net/http"
 )
 
 func (server *Server) MountHandlers() {
@@ -16,9 +15,7 @@ func (server *Server) MountHandlers() {
 		router.Route("/users", func(router chi.Router) {
 			router.Get("/", admin.UserListHandler(server.DBRepo.DB)) //@todo вместо DB передавать репозиторий
 		})
-		router.Post("/create", func(writer http.ResponseWriter, r *http.Request) {
-
-		})
+		router.Post("/create", admin.CreateUserHandler(server.DBRepo.DB))
 	})
 
 	server.Router.Post("/authorize", auth.HandleAuthorization(&server.DBRepo))

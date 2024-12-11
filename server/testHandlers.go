@@ -1,9 +1,8 @@
 package server
 
 import (
-	"encoding/json"
-	"fmt"
 	"github.com/go-chi/chi/v5"
+	"gotube/api"
 	"gotube/auth"
 	"gotube/db"
 	"gotube/handlers"
@@ -21,16 +20,18 @@ func (server *Server) MountTestHandlers() {
 				id, _ := strconv.Atoi(chi.URLParam(r, "id"))
 				token, refreshToken := auth.CreateTokenForUser(id)
 
-				writer.Header().Set("Content-Type", "application/json")
-				_, _ = writer.Write([]byte(fmt.Sprintf("{\"token\":\"%s\",\"refresh_token\":\"%s\"}", token, refreshToken)))
+				response := map[string]string{
+					"token":         token,
+					"refresh_token": refreshToken,
+				}
+				api.RespondSuccess(writer, response)
 			})
 		})
 
 		router.Post("/auth", func(writer http.ResponseWriter, r *http.Request) {
 			fakeResponse, _ := mock.AuthUser("test@home.su", "FloorFloor123")
 
-			writer.Header().Set("Content-Type", "application/json")
-			_ = json.NewEncoder(writer).Encode(fakeResponse)
+			api.RespondSuccess(writer, fakeResponse)
 		})
 
 		router.Get("/dsn", handlers.Dsn)
